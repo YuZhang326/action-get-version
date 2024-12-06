@@ -1,0 +1,66 @@
+name: Test the minver action
+
+on:
+  workflow_dispatch:
+  push:
+
+env:
+  ACTIONS_RUNNER_DEBUG: true # Enable debug mode
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      # Step 1: Check Docker version (optional)
+      - name: Check Docker Version
+        run: docker --version
+
+      # Step 2: Check out the code and make sure to pull all branch histories (MinVer requires a full Git history)
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Step 3: Install MinVer CLI
+      - name: Install MinVer CLI
+        run: dotnet tool install -g minver-cli
+
+      # Step 4: Add MinVer CLI to PATH
+      - name: Add MinVer to PATH
+        run: |
+          echo "%USERPROFILE%\.dotnet\tools" >> $GITHUB_PATH
+
+      # Step 5: Verify MinVer
+      - name: Verify MinVer Installation
+        run: minver --help
+
+      # Step 6: Test the PowerShell script (make sure MinVer is installed)
+      - name: Test get-version-properties
+        shell: pwsh
+        run: ./test/test-get-version-properties.ps1
+
+      # Step 7: Manually run MinVer extract version number (Verify MinVer functionality)
+      - name: Run MinVer to extract version
+        run: minver --verbosity error --default-pre-release-identifiers alpha
+
+      # Step 8: Custom GitHub Action (if you need to call action.yml in the repository)
+      - name: Run minver
+        id: parse-minver-output
+        uses: ./
+
+      # Step 9: The version information extracted by MinVer is displayed
+      - name: Echo Version
+        shell: pwsh
+        run: |
+          Write-Host "version=${{ steps.parse-minver-output.outputs.version }}";
+          Write-Host "major=${{ steps.parse-minver-output.outputs.major }}";
+          Write-Host "minor=${{ steps.parse-minver-output.outputs.minor }}";
+          Write-Host "patch=${{ steps.parse-minver-output.outputs.patch }}";
+          Write-Host "revision=${{ steps.parse-minver-output.outputs.revision }}";
+          Write-Host "hotfix=${{ steps.parse-minver-output.outputs.hotfix }}";
+          Write-Host "suffix=${{ steps.parse-minver-output.outputs.suffix }}";
+          Write-Host "isrelease=${{ steps.parse-minver-output.outputs.isrelease }}";
+          Write-Host "isalpha=${{ steps.parse-minver-output.outputs.isalpha }}";
+          Write-Host "ishotfix=${{ steps.parse-minver-output.outputs.ishotfix }}";
+          Write-Host "assemblyVersion=${{ steps.parse-minver-output.outputs.assemblyVersion }}"

@@ -1,0 +1,45 @@
+
+name: action-get-minverversion
+description: A composite build action which uses the minver-cli tool to calculate the version
+outputs:
+  version:  
+    description: The full version returned by minver, e.g. 1.2.3 for a release version or 1.2.3-hotfix.1 for a hotfix
+    value: ${{ steps.parse-minver-output.outputs.version }}
+  major:
+    description: The major component of the version, e.g. for a version of 1.2.3-hotfix.4.5 will return 1
+    value: ${{ steps.parse-minver-output.outputs.major }}
+  minor:
+    description: The minor component of the version, e.g. for a version of 1.2.3-hotfix.4.5 will return 2
+    value: ${{ steps.parse-minver-output.outputs.minor }}
+  patch:
+    description: The patch component of the version, e.g. for a version of 1.2.3-hotfix.4.5 will return 3
+    value: ${{ steps.parse-minver-output.outputs.patch }}
+  revision:
+    description: The revision component of the version, e.g. for a version of 1.2.3-hotfix.4.5 will return 5
+    value: ${{ steps.parse-minver-output.outputs.revision }}
+  hotfix:
+    description: The hotfix component of the version, e.g. for a version of 1.2.3-hotfix.4.5 will return 4
+    value: ${{ steps.parse-minver-output.outputs.hotfix }}
+  suffix:
+    description: The suffix, one of '', 'alpha' or 'hotfix'
+    value: ${{ steps.parse-minver-output.outputs.suffix }}
+  isrelease:
+    description: true if it is a full release. Implied if suffix is empty
+    value: ${{ steps.parse-minver-output.outputs.isrelease }}
+  isalpha:
+    description: true if it is an alpha release. Implied if suffix is 'alpha'
+    value: ${{ steps.parse-minver-output.outputs.isalpha }}
+  ishotfix:
+    description: true if it is a hotfix release. Implied if suffix is 'hotfix'
+    value: ${{ steps.parse-minver-output.outputs.ishotfix }}
+  assemblyVersion:
+    description: the 4 digit assembly version which should be applied to assemblies
+    value: ${{ steps.parse-minver-output.outputs.assemblyVersion }}
+
+runs:
+  using: "composite"
+  steps:
+  - name: Run minver
+    id: parse-minver-output
+    shell: pwsh
+    run: ${{ github.action_path }}/.build/get-minversion.ps1 -path . -outputFile "$env:GITHUB_OUTPUT"
