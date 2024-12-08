@@ -31,7 +31,6 @@ The following outputs are provided by this action:
 | `ishotfix`        | `true` if it is a hotfix release.                                                              |
 | `assemblyVersion` | The 4-digit assembly version to apply to assemblies.                                           |
 
-## Usage
 ## How It Works
 - This action uses the get-minversion.ps1 PowerShell script to invoke the minver-cli tool.
 - The tool calculates the version of the project based on the repository's state and outputs detailed version information.
@@ -42,6 +41,7 @@ The following outputs are provided by this action:
 ## License
 This project is licensed under the MIT License. See the LICENSE file for details.
 
+## Usage
 
 ### Example Workflow
 
